@@ -14,7 +14,7 @@ public class Connect4 {
     JButton[][] board = new JButton[6][7];
 
     Connect4() {
-        frame.setSize(1000, 800);
+        frame.setSize(1920, 1080);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
