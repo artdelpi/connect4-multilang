@@ -4,26 +4,27 @@ import javax.swing.*;
 
 public class Connect4 {
     JFrame frame = new JFrame("Tic-Tac-Toe");
+    JButton restartButton = new JButton("RESTART");
     JPanel panel = new JPanel();
-    JButton restartButton = new JButton("Restart");
-
+    JPanel gameStatusPanel = new JPanel();
+    
     String currentPlayer = "YELLOW";
-    JLabel label = new JLabel("Now it's \u2B24" + currentPlayer + "'s turn!");
+    JLabel turnLabel = new JLabel("Now it's " + currentPlayer + "'s turn!");
     
     int yellowScore = 0;
-    JLabel yellowScoreLabel = new JLabel(String.valueOf(yellowScore));
+    JLabel yellowScoreLabel = new JLabel("YEL: " + String.valueOf(yellowScore));
     
     int redScore = 0;
-    JLabel redScoreLabel = new JLabel(String.valueOf(redScore));
+    JLabel redScoreLabel = new JLabel("RED: " + String.valueOf(redScore));
     
     int turn = 1;
     boolean isOver = false;
 
-    // Matriz 6x7 que representa as casas do jogo (resolução lógica)
+    // 6x7 bidimensional array that represents the game board
     JButton[][] board = new JButton[6][7];
 
     Connect4() {
-        frame.setSize(1000, 1000);
+        frame.setSize(800, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -33,10 +34,22 @@ public class Connect4 {
         panel.setLayout(new GridLayout(6, 7));
 
         // This works due to how Java handles object references!
-        formatLabel(label);
-        label.setFont(new Font("Arial Unicode MS", Font.PLAIN, 48));
+        formatLabel(turnLabel);
         formatLabel(yellowScoreLabel);
         formatLabel(redScoreLabel);
+
+        yellowScoreLabel.setForeground(Color.YELLOW);
+        redScoreLabel.setForeground(Color.RED);
+
+        restartButton.setBackground(Color.GRAY);
+        restartButton.setFocusable(false);
+        restartButton.setFont(new Font("Arial Unicode MS", Font.BOLD, 20));
+
+        gameStatusPanel.setLayout(new BorderLayout());
+        gameStatusPanel.add(yellowScoreLabel, BorderLayout.EAST);
+        gameStatusPanel.add(redScoreLabel, BorderLayout.WEST);
+        gameStatusPanel.add(turnLabel, BorderLayout.CENTER);
+        gameStatusPanel.add(restartButton, BorderLayout.SOUTH);
         
         // Add action listener to restart the game when the restart button is called
         restartButton.addActionListener(new ActionListener() {
@@ -64,7 +77,6 @@ public class Connect4 {
                 tileButton.setBackground(Color.BLUE);
                 tileButton.setForeground(Color.WHITE);
                 tileButton.setFocusable(false);
-                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 120));
                 board[r][c] = tileButton; // Atribui o botão ao elemento correspondente na matriz
 
                 panel.add(tileButton); // Insere botão no grid do painel
@@ -78,9 +90,10 @@ public class Connect4 {
                             if (currentPlayer.equals("YELLOW")) {
                                 selectedTile.setText("\u26AB");
                                 selectedTile.setForeground(Color.YELLOW);
+                                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 90));
                             } else if (currentPlayer.equals("RED")) {
                                 selectedTile.setText("\u25CF"); // Distinct Unicode symbols to ensure matrix differentiation
-                                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 98));
+                                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 78));
                                 selectedTile.setForeground(Color.RED);
                             }
 
@@ -90,10 +103,10 @@ public class Connect4 {
                                 isOver = true;
                                 if (currentPlayer == "YELLOW") {
                                     yellowScore++;
-                                    yellowScoreLabel.setText(String.valueOf(yellowScore));
+                                    yellowScoreLabel.setText("YEL: " + String.valueOf(yellowScore));
                                 } else {
                                     redScore++;
-                                    redScoreLabel.setText(String.valueOf(redScore));
+                                    redScoreLabel.setText("RED: " + String.valueOf(redScore));
                                 }
                             } else if (turn > 42) {
                                 isOver = true;
@@ -101,7 +114,7 @@ public class Connect4 {
                             } else {
                                 // Alternate players
                                 currentPlayer = currentPlayer == "YELLOW" ? "RED" : "YELLOW";
-                                label.setText("Now it's " + currentPlayer + "'s turn!");
+                                turnLabel.setText("Now it's " + currentPlayer + "'s turn!");
                             }
                         }
                     }
@@ -110,11 +123,8 @@ public class Connect4 {
         }
 
         // Fill the frame
-        frame.add(label, BorderLayout.NORTH);
-        frame.add(yellowScoreLabel, BorderLayout.EAST);
-        frame.add(redScoreLabel, BorderLayout.WEST);
+        frame.add(gameStatusPanel, BorderLayout.NORTH);
         frame.add(panel, BorderLayout.CENTER);
-        frame.add(restartButton, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
 
@@ -126,17 +136,7 @@ public class Connect4 {
                     board[i][c].getText().equals(board[i+1][c].getText()) &&
                     board[i+1][c].getText().equals(board[i+2][c].getText()) &&
                     board[i+2][c].getText().equals(board[i+3][c].getText())) {
-
-                        // Colore casas vencedoras e lança mensagem
-                        board[i][c].setBackground(Color.yellow);
-                        board[i][c].setBackground(Color.GREEN);
-                        board[i+1][c].setBackground(Color.yellow);
-                        board[i+1][c].setBackground(Color.GREEN);
-                        board[i+2][c].setBackground(Color.yellow);
-                        board[i+2][c].setBackground(Color.GREEN);
-                        board[i+3][c].setBackground(Color.yellow);
-                        board[i+3][c].setBackground(Color.GREEN);
-                        label.setText(currentPlayer + " is the winner!");
+                        setWinner(board[i][c], board[i+1][c], board[i+2][c], board[i+3][c]);
                         return true;
                 }
             }
@@ -144,22 +144,12 @@ public class Connect4 {
 
         // Horizontal
         for (int r=0; r<6; r++) {
-            for (int i=0; i<4; i++) {
-                if (board[r][i].getText() != "" &&
-                    board[r][i].getText().equals(board[r][i+1].getText()) &&
-                    board[r][i+1].getText().equals(board[r][i+2].getText()) &&
-                    board[r][i+2].getText().equals(board[r][i+3].getText())) {
-                        
-                        // Colore casas vencedoras e lança mensagem
-                        board[r][i].setBackground(Color.yellow);
-                        board[r][i].setBackground(Color.GREEN);
-                        board[r][i+1].setBackground(Color.yellow);
-                        board[r][i+1].setBackground(Color.GREEN);
-                        board[r][i+2].setBackground(Color.yellow);
-                        board[r][i+2].setBackground(Color.GREEN);
-                        board[r][i+3].setBackground(Color.yellow);
-                        board[r][i+3].setBackground(Color.GREEN);
-                        label.setText(currentPlayer + " is the winner!");
+            for (int c=0; c<4; c++) {
+                if (board[r][c].getText() != "" &&
+                    board[r][c].getText().equals(board[r][c+1].getText()) &&
+                    board[r][c+1].getText().equals(board[r][c+2].getText()) &&
+                    board[r][c+2].getText().equals(board[r][c+3].getText())) {
+                        setWinner(board[r][c], board[r][c+1], board[r][c+2], board[r][c+3]);
                         return true;
                 }
             }
@@ -172,13 +162,7 @@ public class Connect4 {
                     board[r][c].getText().equals(board[r-1][c+1].getText()) &&
                     board[r-1][c+1].getText().equals(board[r-2][c+2].getText()) &&
                     board[r-2][c+2].getText().equals(board[r-3][c+3].getText())) {
-
-                    // Colore casas vencedoras
-                    board[r][c].setBackground(Color.GREEN);
-                    board[r-1][c+1].setBackground(Color.GREEN);
-                    board[r-2][c+2].setBackground(Color.GREEN);
-                    board[r-3][c+3].setBackground(Color.GREEN);
-                    label.setText(currentPlayer + " is the winner!");
+                    setWinner(board[r][c], board[r-1][c+1], board[r-2][c+2], board[r-3][c+3]);
                     return true;
                 }
             }
@@ -191,13 +175,7 @@ public class Connect4 {
                     board[r][c].getText().equals(board[r+1][c+1].getText()) &&
                     board[r+1][c+1].getText().equals(board[r+2][c+2].getText()) &&
                     board[r+2][c+2].getText().equals(board[r+3][c+3].getText())) {
-
-                    // Colore casas vencedoras
-                    board[r][c].setBackground(Color.GREEN);
-                    board[r+1][c+1].setBackground(Color.GREEN);
-                    board[r+2][c+2].setBackground(Color.GREEN);
-                    board[r+3][c+3].setBackground(Color.GREEN);
-                    label.setText(currentPlayer + " is the winner!");
+                    setWinner(board[r][c], board[r+1][c+1], board[r+2][c+2], board[r+3][c+3]);
                     return true;
                 }
             }
@@ -235,11 +213,29 @@ public class Connect4 {
     // Formats JLabel objects directly in the memory by the "label" reference to it given
     void formatLabel(JLabel label) {
         label.setOpaque(true); // Enables background color
-        label.setBackground(Color.BLACK); 
+        label.setBackground(Color.DARK_GRAY); 
         label.setForeground(Color.WHITE);
         label.setFont(new Font("Arial", Font.BOLD, 30));
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setVerticalAlignment(SwingConstants.CENTER);
+    }
+
+    void setWinner(JButton firstTileButton, JButton secondTileButton,
+                   JButton thirdTileButton, JButton fourthTileButton) {
+        // Paint the entire board gray 
+        for (int r=0; r<6; r++) {
+            for (int c=0; c<7; c++) {
+                board[r][c].setBackground(Color.DARK_GRAY);
+            }
+        }
+        // Display the winner in the turn label
+        turnLabel.setText(currentPlayer + " is the winner!");
+
+        // Highlight the winning tiles with a green background
+        firstTileButton.setBackground(Color.green);
+        secondTileButton.setBackground(Color.green);
+        thirdTileButton.setBackground(Color.green);
+        fourthTileButton.setBackground(Color.green);
     }
 
     void handleDraw() {
@@ -247,7 +243,7 @@ public class Connect4 {
             for (int j=0; j<7; j++) {
                 board[i][j].setBackground(Color.BLACK);
                 board[i][j].setForeground(Color.GRAY);
-                label.setText("It's a draw!");
+                turnLabel.setText("It's a draw!");
             }
         }
     }
