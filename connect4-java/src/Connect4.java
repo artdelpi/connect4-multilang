@@ -6,13 +6,17 @@ public class Connect4 {
     JFrame frame = new JFrame("Tic-Tac-Toe");
     JPanel panel = new JPanel();
     JButton restartButton = new JButton("Restart");
-    String currentPlayer = "X";
-    JLabel label = new JLabel("Now it's " + currentPlayer + "'s turn!");
+
+    String currentPlayer = "YELLOW";
+    JLabel label = new JLabel("Now it's \u2B24" + currentPlayer + "'s turn!");
+    
+    int yellowScore = 0;
+    JLabel yellowScoreLabel = new JLabel(String.valueOf(yellowScore));
+    
+    int redScore = 0;
+    JLabel redScoreLabel = new JLabel(String.valueOf(redScore));
+    
     int turn = 1;
-    int xScore = 0;
-    int yScore = 0;
-    JLabel xScoreLabel = new JLabel(String.valueOf(xScore));
-    JLabel yScoreLabel = new JLabel(String.valueOf(yScore));
     boolean isOver = false;
 
     // Matriz 6x7 que representa as casas do jogo (resolução lógica)
@@ -30,8 +34,9 @@ public class Connect4 {
 
         // This works due to how Java handles object references!
         formatLabel(label);
-        formatLabel(yScoreLabel);
-        formatLabel(xScoreLabel);
+        label.setFont(new Font("Arial Unicode MS", Font.PLAIN, 48));
+        formatLabel(yellowScoreLabel);
+        formatLabel(redScoreLabel);
         
         // Add action listener to restart the game when the restart button is called
         restartButton.addActionListener(new ActionListener() {
@@ -55,38 +60,47 @@ public class Connect4 {
         // Criação dos botões pra cada slot do tabuleiro
         for (int r = 0; r < 6; r++) {
             for (int c = 0; c < 7; c++) {
-                JButton slot = new JButton();
-                slot.setBackground(Color.BLUE);
-                slot.setForeground(Color.WHITE);
-                slot.setFont(new Font("Arial", Font.BOLD, 100));
-                slot.setFocusable(false);
-                board[r][c] = slot; // Atribui o botão ao elemento correspondente na matriz
+                JButton tileButton = new JButton();
+                tileButton.setBackground(Color.BLUE);
+                tileButton.setForeground(Color.WHITE);
+                tileButton.setFocusable(false);
+                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 120));
+                board[r][c] = tileButton; // Atribui o botão ao elemento correspondente na matriz
 
-                panel.add(slot); // Insere botão no grid do painel
+                panel.add(tileButton); // Insere botão no grid do painel
 
                 // Adiciona o evento de clique para cada botão (slot)
-                slot.addActionListener(new ActionListener() { 
+                tileButton.addActionListener(new ActionListener() { 
                     public void actionPerformed(ActionEvent e) {
                         JButton selectedTile = (JButton) e.getSource(); // Toma componente GUI acionado
-                        if (!isOver && slot.getText().isEmpty() && !hasEmptyBelow(selectedTile)) {
-                            selectedTile.setText(currentPlayer);
+                        if (!isOver && tileButton.getText().isEmpty() && !hasEmptyBelow(selectedTile)) {
+
+                            if (currentPlayer.equals("YELLOW")) {
+                                selectedTile.setText("\u26AB");
+                                selectedTile.setForeground(Color.YELLOW);
+                            } else if (currentPlayer.equals("RED")) {
+                                selectedTile.setText("\u25CF"); // Distinct Unicode symbols to ensure matrix differentiation
+                                tileButton.setFont(new Font("Arial Unicode MS", Font.PLAIN, 98));
+                                selectedTile.setForeground(Color.RED);
+                            }
+
                             turn++;
 
                             if (hasWinner()) {
                                 isOver = true;
-                                if (currentPlayer == "X") {
-                                    xScore++;
-                                    xScoreLabel.setText(String.valueOf(xScore));
+                                if (currentPlayer == "YELLOW") {
+                                    yellowScore++;
+                                    yellowScoreLabel.setText(String.valueOf(yellowScore));
                                 } else {
-                                    yScore++;
-                                    yScoreLabel.setText(String.valueOf(yScore));
+                                    redScore++;
+                                    redScoreLabel.setText(String.valueOf(redScore));
                                 }
                             } else if (turn > 42) {
                                 isOver = true;
                                 handleDraw();
                             } else {
-                                // Alterna entre os jogadores X e O
-                                currentPlayer = currentPlayer == "X" ? "O" : "X";
+                                // Alternate players
+                                currentPlayer = currentPlayer == "YELLOW" ? "RED" : "YELLOW";
                                 label.setText("Now it's " + currentPlayer + "'s turn!");
                             }
                         }
@@ -95,9 +109,10 @@ public class Connect4 {
             }
         }
 
+        // Fill the frame
         frame.add(label, BorderLayout.NORTH);
-        frame.add(yScoreLabel, BorderLayout.EAST);
-        frame.add(xScoreLabel, BorderLayout.WEST);
+        frame.add(yellowScoreLabel, BorderLayout.EAST);
+        frame.add(redScoreLabel, BorderLayout.WEST);
         frame.add(panel, BorderLayout.CENTER);
         frame.add(restartButton, BorderLayout.SOUTH);
         frame.setVisible(true);
