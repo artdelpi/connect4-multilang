@@ -3,7 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class Connect4 {
-    JFrame frame = new JFrame("Tic-Tac-Toe");
+    JFrame frame = new JFrame("Connect 4");
     JButton restartButton = new JButton("RESTART");
     JPanel panel = new JPanel();
     JPanel gameStatusPanel = new JPanel();
@@ -28,9 +28,9 @@ public class Connect4 {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null); // Centraliza a janela
-        
-        // Painel com layout em grade para organizar os botões (3x3)
+        frame.setLocationRelativeTo(null); // Centers the window
+
+        // Panel with a grid layout to organize the buttons (6x7)
         panel.setLayout(new GridLayout(6, 7));
 
         // This works due to how Java handles object references!
@@ -70,21 +70,21 @@ public class Connect4 {
             }
         });
 
-        // Criação dos botões pra cada slot do tabuleiro
+        // Creation of buttons for each board tile
         for (int r = 0; r < 6; r++) {
             for (int c = 0; c < 7; c++) {
                 JButton tileButton = new JButton();
                 tileButton.setBackground(Color.BLUE);
                 tileButton.setForeground(Color.WHITE);
                 tileButton.setFocusable(false);
-                board[r][c] = tileButton; // Atribui o botão ao elemento correspondente na matriz
+                board[r][c] = tileButton; // Assigns the button to the corresponding element in the array
 
-                panel.add(tileButton); // Insere botão no grid do painel
+                panel.add(tileButton); // Inserts the button into the panel grid
 
-                // Adiciona o evento de clique para cada botão (slot)
+                // Adds a click event to each button (tile)
                 tileButton.addActionListener(new ActionListener() { 
                     public void actionPerformed(ActionEvent e) {
-                        JButton selectedTile = (JButton) e.getSource(); // Toma componente GUI acionado
+                        JButton selectedTile = (JButton) e.getSource(); // Gets the triggered GUI component
                         if (!isOver && tileButton.getText().isEmpty() && !hasEmptyBelow(selectedTile)) {
 
                             if (currentPlayer.equals("YELLOW")) {
@@ -193,24 +193,24 @@ public class Connect4 {
         int column = positions[1];
 
         if (row == 5) { 
-            return false; // Primeira fileira sempre disponível
+            return false; // First row always available
         } else if (board[row+1][column].getText() == "") {
-            return true; // Caso não haja ficha embaixo
+            return true; // If there is no piece below
         } else {
-            return false; // Caso haja ficha embaixo
+            return false; // If there is a piece below
         }
     }
 
     int[] findPosition(JButton selectedTile) {
-        // Encontra posição do botão acionado, na matriz
+        // Finds the position of the triggered button in the array
         for (int r=0; r<6; r++) {
             for (int c=0; c<7; c++) {
                 if (selectedTile == board[r][c]) {
-                    return new int[]{r, c}; // Retorna coordenadas do tile
+                    return new int[]{r, c}; // Returns the coordinates of the tile
                 }
             }
         }
-        return new int[]{-1, -1}; // Retorno padrão caso não encontre
+        return new int[]{-1, -1}; // Default return if not found
     }
 
     // Formats JLabel objects directly in the memory by the "label" reference to it given
