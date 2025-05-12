@@ -5,16 +5,21 @@ import javax.swing.*;
 public class Connect4 {
     JFrame frame = new JFrame("Tic-Tac-Toe");
     JPanel panel = new JPanel();
+    JButton restartButton = new JButton("Restart");
     String currentPlayer = "X";
     JLabel label = new JLabel("Now it's " + currentPlayer + "'s turn!");
     int turn = 1;
+    int xScore = 0;
+    int yScore = 0;
+    JLabel xScoreLabel = new JLabel(String.valueOf(xScore));
+    JLabel yScoreLabel = new JLabel(String.valueOf(yScore));
     boolean isOver = false;
 
     // Matriz 6x7 que representa as casas do jogo (resolução lógica)
     JButton[][] board = new JButton[6][7];
 
     Connect4() {
-        frame.setSize(1920, 1080);
+        frame.setSize(1000, 1000);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
@@ -22,16 +27,34 @@ public class Connect4 {
         
         // Painel com layout em grade para organizar os botões (3x3)
         panel.setLayout(new GridLayout(6, 7));
-        label.setOpaque(true); // Habilita cor de fundo
-        label.setBackground(Color.BLACK); 
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("Arial", Font.BOLD, 30));
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setVerticalAlignment(SwingConstants.CENTER);
+
+        // This works due to how Java handles object references!
+        formatLabel(label);
+        formatLabel(yScoreLabel);
+        formatLabel(xScoreLabel);
         
+        // Add action listener to restart the game when the restart button is called
+        restartButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Reset the game board to its initial state
+                for (int r=0; r<6; r++) {
+                    for (int c=0; c<7; c++) {
+                        // Clear the tile's text
+                        board[r][c].setText("");
+                        // Restore the default color of the tiles (needed in case of victory)
+                        board[r][c].setBackground(Color.BLUE);
+                        board[r][c].setForeground(Color.WHITE);
+                    }
+                }
+                // Reset the turn counter
+                turn = 0;
+                isOver = false;
+            }
+        });
+
         // Criação dos botões pra cada slot do tabuleiro
         for (int r = 0; r < 6; r++) {
-            for (int c = 0; c < 7; c++){
+            for (int c = 0; c < 7; c++) {
                 JButton slot = new JButton();
                 slot.setBackground(Color.BLUE);
                 slot.setForeground(Color.WHITE);
@@ -51,6 +74,13 @@ public class Connect4 {
 
                             if (hasWinner()) {
                                 isOver = true;
+                                if (currentPlayer == "X") {
+                                    xScore++;
+                                    xScoreLabel.setText(String.valueOf(xScore));
+                                } else {
+                                    yScore++;
+                                    yScoreLabel.setText(String.valueOf(yScore));
+                                }
                             } else if (turn > 42) {
                                 isOver = true;
                                 handleDraw();
@@ -66,7 +96,10 @@ public class Connect4 {
         }
 
         frame.add(label, BorderLayout.NORTH);
+        frame.add(yScoreLabel, BorderLayout.EAST);
+        frame.add(xScoreLabel, BorderLayout.WEST);
         frame.add(panel, BorderLayout.CENTER);
+        frame.add(restartButton, BorderLayout.SOUTH);
         frame.setVisible(true);
     }
 
@@ -182,6 +215,16 @@ public class Connect4 {
             }
         }
         return new int[]{-1, -1}; // Retorno padrão caso não encontre
+    }
+
+    // Formats JLabel objects directly in the memory by the "label" reference to it given
+    void formatLabel(JLabel label) {
+        label.setOpaque(true); // Enables background color
+        label.setBackground(Color.BLACK); 
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("Arial", Font.BOLD, 30));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setVerticalAlignment(SwingConstants.CENTER);
     }
 
     void handleDraw() {
