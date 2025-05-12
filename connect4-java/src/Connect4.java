@@ -98,19 +98,22 @@ public class Connect4 {
                             }
 
                             turn++;
-
                             if (hasWinner()) {
                                 isOver = true;
                                 if (currentPlayer == "YELLOW") {
                                     yellowScore++;
                                     yellowScoreLabel.setText("YEL: " + String.valueOf(yellowScore));
+                                    currentPlayer = "RED";
                                 } else {
                                     redScore++;
                                     redScoreLabel.setText("RED: " + String.valueOf(redScore));
+                                    currentPlayer = "YELLOW";
                                 }
-                            } else if (turn > 42) {
+                                turn = 1;
+                            } else if (turn == 42) {
                                 isOver = true;
                                 handleDraw();
+                                turn = 1;
                             } else {
                                 // Alternate players
                                 currentPlayer = currentPlayer == "YELLOW" ? "RED" : "YELLOW";
